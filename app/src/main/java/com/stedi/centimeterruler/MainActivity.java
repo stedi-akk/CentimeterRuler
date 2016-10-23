@@ -7,25 +7,24 @@ import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.SeekBar;
-import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.FrameLayout;
 
-// TODO toast on change calibration
-// TODO resize full ruler on calibration
-// TODO better ruler and calibration menu design
-// TODO correct calibration method
-// TODO move ruler in any direction (multi touch)
-public class MainActivity extends Activity implements OnTouchListener, OnSeekBarChangeListener {
+import com.squareup.otto.Subscribe;
+import com.stedi.centimeterruler.view.CalibrationBar;
+import com.stedi.centimeterruler.view.ColorPicker;
+import com.stedi.centimeterruler.view.RulerView;
+import com.stedi.centimeterruler.view.SettingsView;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
+public class MainActivity extends Activity implements OnTouchListener {
     private static final String CALIBRATION_VALUE = "calibration_value";
 
-    private LinearLayout settingsLayout;
-    private SeekBar sbCalibration;
-    private Ruler ruler;
-    private RelativeLayout.LayoutParams rulerParams;
+    @BindView(R.id.settings_view)
+    SettingsView settingsView;
+    private RulerView rulerView;
+    private FrameLayout.LayoutParams rulerParams;
     private SharedPreferences preferences;
 
     private int screenWidth;
@@ -35,16 +34,29 @@ public class MainActivity extends Activity implements OnTouchListener, OnSeekBar
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
+        ButterKnife.bind(this);
         preferences = getPreferences(MODE_PRIVATE);
         screenWidth = getResources().getDisplayMetrics().widthPixels;
-        settingsLayout = (LinearLayout) findViewById(R.id.settings_layout);
-        sbCalibration = (SeekBar) findViewById(R.id.sb_calibration);
-        sbCalibration.setOnSeekBarChangeListener(this);
-        ruler = (Ruler) findViewById(R.id.ruler);
-        ruler.setOnTouchListener(this);
-        ruler.calibrate(loadCalibration(), sbCalibration.getMax());
-        rulerParams = (RelativeLayout.LayoutParams) ruler.getLayoutParams();
+        rulerView = (RulerView) findViewById(R.id.ruler_view);
+        rulerView.setOnTouchListener(this);
+        rulerView.calibrate(loadCalibration(), 60);
+        rulerParams = (FrameLayout.LayoutParams) rulerView.getLayoutParams();
         rulerParams.leftMargin = screenWidth / 2;
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        settingsView.onStart();
+        App.getBus().register(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        settingsView.onStop();
+        App.getBus().unregister(this);
+        Settings.getInstance().save();
     }
 
     @Override
@@ -58,11 +70,11 @@ public class MainActivity extends Activity implements OnTouchListener, OnSeekBar
                 int xMove = x - xPosition;
                 if (xMove <= 0)
                     rulerParams.leftMargin = 0;
-                else if (xMove + ruler.getWidth() >= screenWidth)
-                    rulerParams.leftMargin = screenWidth - ruler.getWidth();
+                else if (xMove + rulerView.getWidth() >= screenWidth)
+                    rulerParams.leftMargin = screenWidth - rulerView.getWidth();
                 else
                     rulerParams.leftMargin = xMove;
-                ruler.setLayoutParams(rulerParams);
+                rulerView.setLayoutParams(rulerParams);
                 break;
             default:
                 break;
@@ -70,50 +82,21 @@ public class MainActivity extends Activity implements OnTouchListener, OnSeekBar
         return true;
     }
 
-    @Override
-    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        ruler.calibrate(progress, sbCalibration.getMax());
+    @Subscribe
+    public void onCalibrationChange(CalibrationBar.OnChange onChange) {
+        Settings.getInstance().setCalibration(onChange.value);
+        rulerView.calibrate(Constants.MAX_CALIBRATION - onChange.value, Constants.MAX_CALIBRATION);
     }
 
-    @Override
-    public void onStartTrackingTouch(SeekBar seekBar) {
-    }
-
-    @Override
-    public void onStopTrackingTouch(SeekBar seekBar) {
-    }
-
-    public void calibration(View v) {
-        if (sbCalibration.getVisibility() == View.GONE) {
-            sbCalibration.setVisibility(View.VISIBLE);
-            settingsLayout.startAnimation(AnimationUtils.loadAnimation(this, R.anim.settings_show));
-            settingsLayout.bringToFront();
-            sbCalibration.setProgress(loadCalibration());
-        } else {
-            Animation settingsHide = AnimationUtils.loadAnimation(this, R.anim.settings_hide);
-            settingsHide.setAnimationListener(new Animation.AnimationListener() {
-                @Override
-                public void onAnimationStart(Animation animation) {
-                }
-
-                @Override
-                public void onAnimationEnd(Animation animation) {
-                    sbCalibration.setVisibility(View.GONE);
-                    ruler.bringToFront();
-                    saveCalibration();
-                }
-
-                @Override
-                public void onAnimationRepeat(Animation animation) {
-                }
-            });
-            settingsLayout.startAnimation(settingsHide);
-        }
+    @Subscribe
+    public void onPickerSelected(ColorPicker.OnSelected onSelected) {
+        Settings.getInstance().setRulerColor(Settings.RulerColor.values()[onSelected.index]);
+        rulerView.setBackgroundColor(Settings.getInstance().getRulerColor().color);
     }
 
     private void saveCalibration() {
         Editor editor = preferences.edit();
-        editor.putInt(CALIBRATION_VALUE, sbCalibration.getProgress());
+        editor.putInt(CALIBRATION_VALUE, 0);
         editor.commit();
     }
 

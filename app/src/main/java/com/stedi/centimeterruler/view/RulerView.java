@@ -1,4 +1,4 @@
-package com.stedi.centimeterruler;
+package com.stedi.centimeterruler.view;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -8,7 +8,10 @@ import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
 
-public class Ruler extends View {
+import com.stedi.centimeterruler.R;
+import com.stedi.centimeterruler.Settings;
+
+public class RulerView extends View {
     private Paint linePaint;
     private Paint textPaint;
 
@@ -17,17 +20,17 @@ public class Ruler extends View {
     private float textMargin;
     private float calibration;
 
-    public Ruler(Context context) {
+    public RulerView(Context context) {
         super(context);
         init();
     }
 
-    public Ruler(Context context, AttributeSet attrs, int defStyleAttr) {
+    public RulerView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }
 
-    public Ruler(Context context, AttributeSet attrs) {
+    public RulerView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
@@ -73,7 +76,7 @@ public class Ruler extends View {
     }
 
     private void init() {
-        setBackgroundResource(R.drawable.ruler_background);
+        setBackgroundColor(Settings.getInstance().getRulerColor().color);
         linePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         linePaint.setColor(Color.BLACK);
         linePaint.setStrokeWidth(getTypedValue(TypedValue.COMPLEX_UNIT_DIP, 1));
