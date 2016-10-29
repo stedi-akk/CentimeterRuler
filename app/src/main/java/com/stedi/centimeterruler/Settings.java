@@ -7,33 +7,33 @@ public class Settings {
     private static Settings instance;
 
     private static final String KEY_CALIBRATION = "calibration_value";
-    private static final String KEY_RULER_COLOR = "ruler_color";
+    private static final String KEY_THEME = "ruler_theme";
 
-    public enum RulerColor {
+    public enum Theme {
         BLUE("#9ecaff", "#6baeff"),
         GREEN("#aeff9e", "#59e43d"),
         YELLOW("#f6ff9e", "#e1ed68"),
         GRAY("#e3e3e3", "#c6c6c6");
 
-        public final int color;
-        public final int darkerColor;
+        public final int rulerColor;
+        public final int elementsColor;
 
-        RulerColor(String colorHex, String darkerColorHex) {
-            this.color = Color.parseColor(colorHex);
-            this.darkerColor = Color.parseColor(darkerColorHex);
+        Theme(String rulerColor, String elementsColor) {
+            this.rulerColor = Color.parseColor(rulerColor);
+            this.elementsColor = Color.parseColor(elementsColor);
         }
 
-        public static RulerColor find(String name) {
-            for (RulerColor rulerColor : RulerColor.values()) {
-                if (rulerColor.name().equals(name))
-                    return rulerColor;
+        public static Theme find(String name) {
+            for (Theme theme : Theme.values()) {
+                if (theme.name().equals(name))
+                    return theme;
             }
-            return Constants.DEFAULT_RULER_COLOR;
+            return Constants.DEFAULT_THEME;
         }
     }
 
     private int calibration;
-    private RulerColor rulerColor;
+    private Theme theme;
 
     public static Settings getInstance() {
         if (instance == null)
@@ -44,7 +44,7 @@ public class Settings {
     private Settings() {
         SharedPreferences sp = App.getSharedPreferences();
         calibration = sp.getInt(KEY_CALIBRATION, Constants.DEFAULT_CALIBRATION);
-        rulerColor = RulerColor.find(sp.getString(KEY_RULER_COLOR, Constants.DEFAULT_RULER_COLOR.name()));
+        theme = Theme.find(sp.getString(KEY_THEME, Constants.DEFAULT_THEME.name()));
     }
 
     public int getCalibration() {
@@ -57,20 +57,20 @@ public class Settings {
         this.calibration = calibration;
     }
 
-    public RulerColor getRulerColor() {
-        return rulerColor;
+    public Theme getTheme() {
+        return theme;
     }
 
-    public void setRulerColor(RulerColor rulerColor) {
-        if (this.rulerColor == rulerColor)
+    public void setTheme(Theme theme) {
+        if (this.theme == theme)
             return;
-        this.rulerColor = rulerColor;
+        this.theme = theme;
     }
 
     public void save() {
         App.saveSharedPreferences(editor -> {
             editor.putInt(KEY_CALIBRATION, calibration);
-            editor.putString(KEY_RULER_COLOR, rulerColor.name());
+            editor.putString(KEY_THEME, theme.name());
         });
     }
 }

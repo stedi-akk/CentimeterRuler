@@ -8,7 +8,6 @@ import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
 
-import com.stedi.centimeterruler.R;
 import com.stedi.centimeterruler.Settings;
 
 public class RulerView extends View {
@@ -76,7 +75,7 @@ public class RulerView extends View {
     }
 
     private void init() {
-        setBackgroundColor(Settings.getInstance().getRulerColor().color);
+        setBackgroundColor(Settings.getInstance().getTheme().rulerColor);
         linePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         linePaint.setColor(Color.BLACK);
         linePaint.setStrokeWidth(getTypedValue(TypedValue.COMPLEX_UNIT_DIP, 1));

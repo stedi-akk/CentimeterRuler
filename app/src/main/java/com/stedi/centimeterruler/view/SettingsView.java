@@ -49,13 +49,13 @@ public class SettingsView extends FrameLayout {
         tvCalibration.setTextColor(Color.BLACK);
         tvVersion.setTextColor(Color.BLACK);
         tvVersion.setText("v" + BuildConfig.VERSION_NAME);
-        updateColors(Settings.getInstance().getRulerColor());
+        updateColors(Settings.getInstance().getTheme());
         calibrationBar.setMax(Constants.MAX_CALIBRATION);
         calibrationBar.setProgress(Settings.getInstance().getCalibration());
-        for (Settings.RulerColor rulerColor : Settings.RulerColor.values())
-            colorPicker.addPicker(rulerColor.color, rulerColor.darkerColor);
-        colorPicker.setSelected(Settings.getInstance().getRulerColor().ordinal());
         showCalibrationValue(Settings.getInstance().getCalibration());
+        for (Settings.Theme theme : Settings.Theme.values())
+            colorPicker.addPicker(theme.rulerColor, theme.elementsColor);
+        colorPicker.setSelected(Settings.getInstance().getTheme().ordinal());
     }
 
     public void onStart() {
@@ -73,16 +73,15 @@ public class SettingsView extends FrameLayout {
 
     @Subscribe
     public void onPickerSelected(ColorPicker.OnSelected onSelected) {
-        updateColors(Settings.RulerColor.values()[onSelected.index]);
+        updateColors(Settings.Theme.values()[onSelected.index]);
     }
 
     private void showCalibrationValue(int value) {
         tvCalibration.setText(String.valueOf(value));
     }
 
-    private void updateColors(Settings.RulerColor rulerColor) {
-        int viewsColor = rulerColor.darkerColor;
-        btnShow.setColorFilter(viewsColor);
-        calibrationBar.setColor(viewsColor);
+    private void updateColors(Settings.Theme theme) {
+        btnShow.setColorFilter(theme.elementsColor);
+        calibrationBar.setColor(theme.elementsColor);
     }
 }

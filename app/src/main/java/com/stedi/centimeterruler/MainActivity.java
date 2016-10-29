@@ -90,8 +90,8 @@ public class MainActivity extends Activity implements OnTouchListener {
 
     @Subscribe
     public void onPickerSelected(ColorPicker.OnSelected onSelected) {
-        Settings.getInstance().setRulerColor(Settings.RulerColor.values()[onSelected.index]);
-        rulerView.setBackgroundColor(Settings.getInstance().getRulerColor().color);
+        Settings.getInstance().setTheme(Settings.Theme.values()[onSelected.index]);
+        rulerView.setBackgroundColor(Settings.getInstance().getTheme().rulerColor);
     }
 
     private void saveCalibration() {

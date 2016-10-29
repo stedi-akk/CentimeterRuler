@@ -30,13 +30,13 @@ public class ColorPicker extends LinearLayout {
 
     private class Picker {
         private final View view;
-        private final int color;
-        private final int selectedColor;
+        private final int fillColor;
+        private final int strokeColor;
 
-        private Picker(View view, int color, int selectedColor) {
+        private Picker(View view, int fillColor, int strokeColor) {
             this.view = view;
-            this.color = color;
-            this.selectedColor = selectedColor;
+            this.fillColor = fillColor;
+            this.strokeColor = strokeColor;
         }
     }
 
@@ -52,11 +52,11 @@ public class ColorPicker extends LinearLayout {
         super(context, attrs, defStyleAttr);
     }
 
-    public void addPicker(int color, int selectedColor) {
+    public void addPicker(int fillColor, int strokeColor) {
         LayoutInflater inflater = LayoutInflater.from(getContext());
         View pickerView = inflater.inflate(R.layout.color_picker_item, this, false);
         addView(pickerView);
-        Picker picker = new Picker(pickerView, color, selectedColor);
+        Picker picker = new Picker(pickerView, fillColor, strokeColor);
         items.add(picker);
         pickerView.setOnClickListener(v -> {
             int index = items.indexOf(picker);
@@ -74,7 +74,7 @@ public class ColorPicker extends LinearLayout {
     }
 
     private void refreshPicker(Picker picker, boolean selected) {
-        Drawable drawable = createOvalShape(selected, picker.color, picker.selectedColor);
+        Drawable drawable = createOvalShape(selected, picker.fillColor, picker.strokeColor);
         picker.view.setBackgroundDrawable(drawable);
     }
 
