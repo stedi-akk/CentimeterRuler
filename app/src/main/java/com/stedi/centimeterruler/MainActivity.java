@@ -1,7 +1,7 @@
 package com.stedi.centimeterruler;
 
-import android.app.Activity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 
 import com.squareup.otto.Subscribe;
 import com.stedi.centimeterruler.view.CalibrationBar;
@@ -12,7 +12,7 @@ import com.stedi.centimeterruler.view.SettingsView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
     @BindView(R.id.settings_view)
     SettingsView settingsView;
 
@@ -25,6 +25,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.main_activity);
         ButterKnife.bind(this);
         rulerView.calibrate(Settings.getInstance().getCalibration());
+        rulerView.setRulerColor(Settings.getInstance().getTheme().rulerColor);
     }
 
     @Override
@@ -50,7 +51,7 @@ public class MainActivity extends Activity {
     @Subscribe
     public void onPickerSelected(ColorPicker.OnSelected onSelected) {
         Settings.getInstance().setTheme(Settings.Theme.values()[onSelected.index]);
-        rulerView.setBackgroundColor(Settings.getInstance().getTheme().rulerColor);
+        rulerView.setRulerColor(Settings.getInstance().getTheme().rulerColor);
         settingsView.refresh();
     }
 }

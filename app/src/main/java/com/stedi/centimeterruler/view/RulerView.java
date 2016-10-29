@@ -10,7 +10,6 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.stedi.centimeterruler.Constants;
-import com.stedi.centimeterruler.Settings;
 
 public class RulerView extends View implements View.OnTouchListener {
     private Paint linePaint;
@@ -48,7 +47,6 @@ public class RulerView extends View implements View.OnTouchListener {
         mm = getTypedValue(TypedValue.COMPLEX_UNIT_MM, 1);
         sm = getTypedValue(TypedValue.COMPLEX_UNIT_MM, 10);
         setOnTouchListener(this);
-        setBackgroundColor(Settings.getInstance().getTheme().rulerColor);
     }
 
     @Override
@@ -74,8 +72,7 @@ public class RulerView extends View implements View.OnTouchListener {
         return true;
     }
 
-    @Override
-    public void setBackgroundColor(int color) {
+    public void setRulerColor(int color) {
         backgroundPaint.setColor(color);
         invalidate();
     }
