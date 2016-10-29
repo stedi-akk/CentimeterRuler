@@ -1,9 +1,14 @@
 package com.stedi.centimeterruler.view;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.graphics.Color;
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -15,10 +20,21 @@ import com.stedi.centimeterruler.Constants;
 import com.stedi.centimeterruler.R;
 import com.stedi.centimeterruler.Settings;
 
+import java.util.List;
+
 import butterknife.BindView;
+import butterknife.BindViews;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class SettingsView extends FrameLayout {
+    private final String KEY_STATE = "KEY_STATE";
+    private final String KEY_SHOWED = "KEY_SHOWED";
+
+    @BindViews({R.id.settings_view_tv_calibration, R.id.settings_view_tv_version_info,
+            R.id.settings_view_calibration_bar, R.id.settings_view_color_picker})
+    List<View> showHideViews;
+
     @BindView(R.id.settings_view_tv_calibration)
     TextView tvCalibration;
 
@@ -33,6 +49,8 @@ public class SettingsView extends FrameLayout {
 
     @BindView(R.id.settings_view_color_picker)
     ColorPicker colorPicker;
+
+    private boolean showed;
 
     public SettingsView(Context context) {
         this(context, null);
@@ -56,6 +74,7 @@ public class SettingsView extends FrameLayout {
         for (Settings.Theme theme : Settings.Theme.values())
             colorPicker.addPicker(theme.rulerColor, theme.elementsColor);
         colorPicker.setSelected(Settings.getInstance().getTheme().ordinal());
+        showSettings(false, false);
     }
 
     public void onStart() {
@@ -65,6 +84,39 @@ public class SettingsView extends FrameLayout {
     public void onStop() {
         App.getBus().unregister(this);
     }
+
+    @OnClick(R.id.settings_view_btn_show)
+    public void onBtnShowClick(View v) {
+        showSettings(!showed, true);
+    }
+
+    private void showSettings(boolean show, boolean animate) {
+        showed = show;
+        if (animate) {
+            ButterKnife.apply(showHideViews, showed ? SHOW_ANIMATION : HIDE_ANIMATION);
+        } else {
+            for (View view : showHideViews) {
+                view.setVisibility(showed ? View.VISIBLE : View.GONE);
+                view.animate().alpha(showed ? 1f : 0f);
+            }
+        }
+    }
+
+    static final ButterKnife.Action<View> SHOW_ANIMATION = (view, index) ->
+            view.animate().alpha(1f).setDuration(500).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    view.setVisibility(View.VISIBLE);
+                }
+            });
+
+    static final ButterKnife.Action<View> HIDE_ANIMATION = (view, index) ->
+            view.animate().alpha(0f).setDuration(500).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    view.setVisibility(View.GONE);
+                }
+            });
 
     @Subscribe
     public void onCalibrationChange(CalibrationBar.OnChange onChange) {
@@ -83,5 +135,23 @@ public class SettingsView extends FrameLayout {
     private void updateColors(Settings.Theme theme) {
         btnShow.setColorFilter(theme.elementsColor);
         calibrationBar.setColor(theme.elementsColor);
+    }
+
+    @Override
+    public void onRestoreInstanceState(Parcelable state) {
+        if (state instanceof Bundle) {
+            Bundle bundle = (Bundle) state;
+            showSettings(bundle.getBoolean(KEY_SHOWED), false);
+            state = bundle.getParcelable(KEY_STATE);
+        }
+        super.onRestoreInstanceState(state);
+    }
+
+    @Override
+    public Parcelable onSaveInstanceState() {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(KEY_STATE, super.onSaveInstanceState());
+        bundle.putBoolean(KEY_SHOWED, showed);
+        return bundle;
     }
 }
