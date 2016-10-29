@@ -4,6 +4,8 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -12,6 +14,9 @@ import com.stedi.centimeterruler.App;
 import com.stedi.centimeterruler.Constants;
 
 public class RulerView extends View implements View.OnTouchListener {
+    private final String KEY_STATE = "KEY_STATE";
+    private final String KEY_DRAW_X = "KEY_DRAW_X";
+
     private final float MM = App.mm2px(1);
     private final float SM = MM * 10;
     private final float RULER_WIDTH = SM * 2 + MM * 2;
@@ -22,10 +27,12 @@ public class RulerView extends View implements View.OnTouchListener {
     private Paint linesPaint;
     private Paint textPaint;
 
-    private int actionDownX;
-    private int drawX;
+    private float actionDownX;
+    private float drawX;
 
     private float calibration;
+
+    private boolean fromRestoreInstanceState;
 
     public RulerView(Context context) {
         this(context, null);
@@ -61,18 +68,24 @@ public class RulerView extends View implements View.OnTouchListener {
     }
 
     @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        if (!fromRestoreInstanceState)
+            drawX = w / 2;
+    }
+
+    @Override
     public boolean onTouch(View v, MotionEvent event) {
-        int x = (int) event.getRawX();
+        float x = event.getRawX();
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 actionDownX = x - drawX;
                 break;
             case MotionEvent.ACTION_MOVE:
-                int xMove = x - actionDownX;
+                float xMove = x - actionDownX;
                 if (xMove <= 0)
                     drawX = 0;
                 else if (xMove + RULER_WIDTH >= getWidth())
-                    drawX = (int) (getWidth() - RULER_WIDTH);
+                    drawX = getWidth() - RULER_WIDTH;
                 else
                     drawX = xMove;
                 invalidate();
@@ -85,6 +98,11 @@ public class RulerView extends View implements View.OnTouchListener {
 
     @Override
     protected void onDraw(Canvas canvas) {
+        if (drawX < 0)
+            drawX = 0;
+        if (drawX > getWidth() - RULER_WIDTH)
+            drawX = getWidth() - RULER_WIDTH;
+
         // ruler background
         canvas.drawRect(drawX, 0, drawX + RULER_WIDTH, getBottom(), backgroundPaint);
 
@@ -119,5 +137,24 @@ public class RulerView extends View implements View.OnTouchListener {
             smY -= (SM + calibration * 10);
             i++;
         }
+    }
+
+    @Override
+    public void onRestoreInstanceState(Parcelable state) {
+        if (state instanceof Bundle) {
+            fromRestoreInstanceState = true;
+            Bundle bundle = (Bundle) state;
+            drawX = bundle.getFloat(KEY_DRAW_X);
+            state = bundle.getParcelable(KEY_STATE);
+        }
+        super.onRestoreInstanceState(state);
+    }
+
+    @Override
+    public Parcelable onSaveInstanceState() {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(KEY_STATE, super.onSaveInstanceState());
+        bundle.putFloat(KEY_DRAW_X, drawX);
+        return bundle;
     }
 }
