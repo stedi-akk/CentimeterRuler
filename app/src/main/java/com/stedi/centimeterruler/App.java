@@ -40,4 +40,8 @@ public class App extends Application {
     public static float dp2px(float dp) {
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, instance.getResources().getDisplayMetrics());
     }
+
+    public static float mm2px(int mm) {
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, mm, instance.getResources().getDisplayMetrics());
+    }
 }

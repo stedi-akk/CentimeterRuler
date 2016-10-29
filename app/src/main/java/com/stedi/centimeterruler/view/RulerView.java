@@ -5,26 +5,27 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
-import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.stedi.centimeterruler.App;
 import com.stedi.centimeterruler.Constants;
 
 public class RulerView extends View implements View.OnTouchListener {
-    private Paint linePaint;
-    private Paint textPaint;
+    private final float MM = App.mm2px(1);
+    private final float SM = MM * 10;
+    private final float RULER_WIDTH = SM * 2 + MM * 2;
+    private final float VALUES_PADDING = MM * 3;
+    private final float TEXT_SIZE = MM * 4;
+
     private Paint backgroundPaint;
+    private Paint linesPaint;
+    private Paint textPaint;
 
-    private float mm;
-    private float sm;
-    private float textMargin;
-    private float calibration;
-
-    private int xPositionTouch;
+    private int actionDownX;
     private int drawX;
 
-    private final int RULER_WIDTH = (int) getTypedValue(TypedValue.COMPLEX_UNIT_MM, 20);
+    private float calibration;
 
     public RulerView(Context context) {
         this(context, null);
@@ -36,17 +37,27 @@ public class RulerView extends View implements View.OnTouchListener {
 
     public RulerView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        setOnTouchListener(this);
+
         backgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        linePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        linePaint.setColor(Color.BLACK);
-        linePaint.setStrokeWidth(getTypedValue(TypedValue.COMPLEX_UNIT_DIP, 1));
+
+        linesPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        linesPaint.setColor(Color.BLACK);
+        linesPaint.setStrokeWidth(App.dp2px(1));
+
         textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         textPaint.setColor(Color.BLACK);
-        textPaint.setTextSize(getTypedValue(TypedValue.COMPLEX_UNIT_MM, 4));
-        textMargin = getTypedValue(TypedValue.COMPLEX_UNIT_MM, 1);
-        mm = getTypedValue(TypedValue.COMPLEX_UNIT_MM, 1);
-        sm = getTypedValue(TypedValue.COMPLEX_UNIT_MM, 10);
-        setOnTouchListener(this);
+        textPaint.setTextSize(TEXT_SIZE);
+    }
+
+    public void setRulerColor(int color) {
+        backgroundPaint.setColor(color);
+        invalidate();
+    }
+
+    public void calibrate(float value) {
+        calibration = (value - (Constants.MAX_CALIBRATION / 2)) / Constants.CALIBRATION_MAGIC;
+        invalidate();
     }
 
     @Override
@@ -54,14 +65,14 @@ public class RulerView extends View implements View.OnTouchListener {
         int x = (int) event.getRawX();
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                xPositionTouch = x - drawX;
+                actionDownX = x - drawX;
                 break;
             case MotionEvent.ACTION_MOVE:
-                int xMove = x - xPositionTouch;
+                int xMove = x - actionDownX;
                 if (xMove <= 0)
                     drawX = 0;
                 else if (xMove + RULER_WIDTH >= getWidth())
-                    drawX = getWidth() - RULER_WIDTH;
+                    drawX = (int) (getWidth() - RULER_WIDTH);
                 else
                     drawX = xMove;
                 invalidate();
@@ -72,53 +83,41 @@ public class RulerView extends View implements View.OnTouchListener {
         return true;
     }
 
-    public void setRulerColor(int color) {
-        backgroundPaint.setColor(color);
-        invalidate();
-    }
-
     @Override
     protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-        drawRulerBackground(canvas);
-        drawRulerValues(canvas);
-    }
-
-    private void drawRulerBackground(Canvas canvas) {
+        // ruler background
         canvas.drawRect(drawX, 0, drawX + RULER_WIDTH, getBottom(), backgroundPaint);
-    }
 
-    private void drawRulerValues(Canvas canvas) {
+        // ruler values
         float mmY = 0;
-        float smY = mm * 3;
-        int smText = 0;
-        while (smY <= getMeasuredHeight() - mm * 3) {
-            canvas.drawLine(drawX, smY, drawX + RULER_WIDTH / 2, smY, linePaint);
+        float smY = getMeasuredHeight() - VALUES_PADDING;
+        int i = 0;
+        while (smY >= VALUES_PADDING) {
+            // sm line
+            canvas.drawLine(drawX, smY, drawX + SM, smY, linesPaint);
+
+            // sm text
             canvas.save();
-            canvas.rotate(90, RULER_WIDTH / 2 + textMargin, smY - textMargin);
-            canvas.drawText(smText + "", RULER_WIDTH / 2 + textMargin, smY - textMargin - drawX, textPaint);
+            canvas.rotate(-90, SM, smY);
+            String number = String.valueOf(i);
+            float textWidth = textPaint.measureText(number);
+            canvas.drawText(number, SM - textWidth / 2, smY + TEXT_SIZE + drawX, textPaint);
             canvas.restore();
+
+            // mm lines
             mmY = smY;
-            for (int i = 0; i < 9; i++) {
-                mmY += (mm + calibration);
-                if (mmY > getMeasuredHeight() - mm * 3)
+            for (int j = 0; j < 9; j++) {
+                mmY -= (MM + calibration);
+                if (mmY < VALUES_PADDING)
                     break;
-                if (i == 4)
-                    canvas.drawLine(drawX, mmY, drawX + RULER_WIDTH / 3, mmY, linePaint);
+                if (j == 4)
+                    canvas.drawLine(drawX, mmY, drawX + SM / 1.5f, mmY, linesPaint);
                 else
-                    canvas.drawLine(drawX, mmY, drawX + RULER_WIDTH / 4, mmY, linePaint);
+                    canvas.drawLine(drawX, mmY, drawX + SM / 2, mmY, linesPaint);
             }
-            smY += (sm + calibration * 10);
-            smText++;
+
+            smY -= (SM + calibration * 10);
+            i++;
         }
-    }
-
-    public void calibrate(float value) {
-        calibration = (Constants.MAX_CALIBRATION - value - (Constants.MAX_CALIBRATION / 2)) / 12.5f;
-        invalidate();
-    }
-
-    private float getTypedValue(int unit, float value) {
-        return TypedValue.applyDimension(unit, value, getResources().getDisplayMetrics());
     }
 }
