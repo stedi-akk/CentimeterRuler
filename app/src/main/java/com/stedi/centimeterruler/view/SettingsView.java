@@ -13,8 +13,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.squareup.otto.Subscribe;
-import com.stedi.centimeterruler.App;
 import com.stedi.centimeterruler.BuildConfig;
 import com.stedi.centimeterruler.Constants;
 import com.stedi.centimeterruler.R;
@@ -67,22 +65,13 @@ public class SettingsView extends FrameLayout {
         tvCalibration.setTextColor(Color.BLACK);
         tvVersion.setTextColor(Color.BLACK);
         tvVersion.setText("v" + BuildConfig.VERSION_NAME);
-        updateColors(Settings.getInstance().getTheme());
         calibrationBar.setMax(Constants.MAX_CALIBRATION);
         calibrationBar.setProgress(Settings.getInstance().getCalibration());
-        showCalibrationValue(Settings.getInstance().getCalibration());
         for (Settings.Theme theme : Settings.Theme.values())
             colorPicker.addPicker(theme.rulerColor, theme.elementsColor);
         colorPicker.setSelected(Settings.getInstance().getTheme().ordinal());
+        refresh();
         showSettings(false, false);
-    }
-
-    public void onStart() {
-        App.getBus().register(this);
-    }
-
-    public void onStop() {
-        App.getBus().unregister(this);
     }
 
     @OnClick(R.id.settings_view_btn_show)
@@ -118,21 +107,10 @@ public class SettingsView extends FrameLayout {
                 }
             });
 
-    @Subscribe
-    public void onCalibrationChange(CalibrationBar.OnChange onChange) {
-        showCalibrationValue(onChange.value);
-    }
-
-    @Subscribe
-    public void onPickerSelected(ColorPicker.OnSelected onSelected) {
-        updateColors(Settings.Theme.values()[onSelected.index]);
-    }
-
-    private void showCalibrationValue(int value) {
-        tvCalibration.setText(String.valueOf(value));
-    }
-
-    private void updateColors(Settings.Theme theme) {
+    public void refresh() {
+        String calibrationValue = String.valueOf(Settings.getInstance().getCalibration());
+        tvCalibration.setText(calibrationValue);
+        Settings.Theme theme = Settings.getInstance().getTheme();
         btnShow.setColorFilter(theme.elementsColor);
         calibrationBar.setColor(theme.elementsColor);
     }
