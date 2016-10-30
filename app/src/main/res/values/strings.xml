@@ -3,4 +3,9 @@
     <string name="apply_settings">Apply new settings ?</string>
     <string name="dialog_ok">OK</string>
     <string name="dialog_cancel">CANCEL</string>
+    <string name="hello">Hello !</string>
+    <string name="calibration_info">It\'s important to calibrate this ruler before using it,
+        because some devices don\'t return accurate centimeter value.
+        Just put a real ruler on the screen, and calibrate application ruler.
+        Calibration value will be remembered.</string>
 </resources>

@@ -18,6 +18,7 @@ import butterknife.ButterKnife;
 public class MainActivity extends AppCompatActivity {
     private final String TAG_SETTINGS_CHANGED = "TAG_SETTINGS_CHANGED";
     private final String TAG_CALIBRATION_INFO = "TAG_CALIBRATION_INFO";
+    private final String KEY_CALIBRATION_INFO_SHOWED = "KEY_CALIBRATION_INFO_SHOWED";
 
     @BindView(R.id.settings_view)
     SettingsView settingsView;
@@ -32,6 +33,13 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         rulerView.calibrate(Settings.getInstance().getCalibration());
         rulerView.setRulerColor(Settings.getInstance().getTheme().rulerColor);
+
+        if (!App.getSharedPreferences().contains(KEY_CALIBRATION_INFO_SHOWED)
+                && getSupportFragmentManager().findFragmentByTag(TAG_CALIBRATION_INFO) == null) {
+            SimpleDialog dlg = SimpleDialog.newInstance(getString(R.string.hello), getString(R.string.calibration_info),
+                    getString(R.string.dialog_ok), null, false);
+            dlg.show(getSupportFragmentManager(), TAG_CALIBRATION_INFO);
+        }
     }
 
     @Override
@@ -63,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
     @Subscribe
     public void onSettingsChanged(SettingsView.OnSettingsChanged onSettingsChanged) {
         SimpleDialog dlg = SimpleDialog.newInstance(getString(R.string.apply_settings), null,
-                getString(R.string.dialog_ok), getString(R.string.dialog_cancel));
+                getString(R.string.dialog_ok), getString(R.string.dialog_cancel), true);
         dlg.show(getSupportFragmentManager(), TAG_SETTINGS_CHANGED);
     }
 
@@ -79,8 +87,8 @@ public class MainActivity extends AppCompatActivity {
                 rulerView.setRulerColor(Settings.getInstance().getTheme().rulerColor);
             }
             settingsView.showSettings(false, true);
-        } else if (onResult.tag.equals(TAG_CALIBRATION_INFO)) {
-
+        } else if (onResult.tag.equals(TAG_CALIBRATION_INFO) && onResult.okClicked) {
+            App.saveSharedPreferences(editor -> editor.putBoolean(KEY_CALIBRATION_INFO_SHOWED, true));
         }
     }
 }

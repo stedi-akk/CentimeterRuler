@@ -14,6 +14,7 @@ public class SimpleDialog extends DialogFragment {
     private static final String KEY_MESSAGE = "KEY_MESSAGE";
     private static final String KEY_OK_TEXT = "KEY_OK_TEXT";
     private static final String KEY_CANCEL_TEXT = "KEY_CANCEL_TEXT";
+    private static final String KEY_CANCELABLE = "KEY_CANCELABLE";
 
     public static class OnResult {
         public final boolean okClicked;
@@ -25,12 +26,13 @@ public class SimpleDialog extends DialogFragment {
         }
     }
 
-    public static SimpleDialog newInstance(String title, String message, String okText, String cancelText) {
+    public static SimpleDialog newInstance(String title, String message, String okText, String cancelText, boolean cancelable) {
         Bundle args = new Bundle();
         args.putString(KEY_TITLE, title);
         args.putString(KEY_MESSAGE, message);
         args.putString(KEY_OK_TEXT, okText);
         args.putString(KEY_CANCEL_TEXT, cancelText);
+        args.putBoolean(KEY_CANCELABLE, cancelable);
         SimpleDialog dlg = new SimpleDialog();
         dlg.setArguments(args);
         return dlg;
@@ -46,22 +48,21 @@ public class SimpleDialog extends DialogFragment {
         String message = getArguments().getString(KEY_MESSAGE, null);
         String okText = getArguments().getString(KEY_OK_TEXT, null);
         String cancelText = getArguments().getString(KEY_CANCEL_TEXT, null);
-        if (title != null) {
+        boolean cancelable = getArguments().getBoolean(KEY_CANCELABLE, true);
+        if (title != null)
             builder.setTitle(title);
-        }
-        if (message != null) {
+        if (message != null)
             builder.setMessage(message);
+        if (okText != null)
+            builder.setPositiveButton(okText, (dialog, which) -> App.getBus().post(new OnResult(true, getTag())));
+        if (cancelText != null)
+            builder.setNegativeButton(cancelText, (dialog, which) -> App.getBus().post(new OnResult(false, getTag())));
+        AlertDialog dlg = builder.create();
+        if (!cancelable) {
+            setCancelable(false);
+            dlg.setCancelable(false);
+            dlg.setCanceledOnTouchOutside(false);
         }
-        if (okText != null) {
-            builder.setPositiveButton(okText, (dialog, which) -> {
-                App.getBus().post(new OnResult(true, getTag()));
-            });
-        }
-        if (cancelText != null) {
-            builder.setNegativeButton(cancelText, (dialog, which) -> {
-                App.getBus().post(new OnResult(false, getTag()));
-            });
-        }
-        return builder.create();
+        return dlg;
     }
 }
