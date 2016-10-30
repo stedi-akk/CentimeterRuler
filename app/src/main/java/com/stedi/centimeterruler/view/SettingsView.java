@@ -13,6 +13,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.stedi.centimeterruler.App;
 import com.stedi.centimeterruler.BuildConfig;
 import com.stedi.centimeterruler.Constants;
 import com.stedi.centimeterruler.R;
@@ -28,6 +29,9 @@ import butterknife.OnClick;
 public class SettingsView extends FrameLayout {
     private final String KEY_STATE = "KEY_STATE";
     private final String KEY_SHOWED = "KEY_SHOWED";
+
+    public static class OnSettingsChanged {
+    }
 
     @BindViews({R.id.settings_view_tv_calibration, R.id.settings_view_tv_version_info,
             R.id.settings_view_calibration_bar, R.id.settings_view_color_picker})
@@ -66,20 +70,22 @@ public class SettingsView extends FrameLayout {
         tvVersion.setTextColor(Color.BLACK);
         tvVersion.setText("v" + BuildConfig.VERSION_NAME);
         calibrationBar.setMax(Constants.MAX_CALIBRATION);
-        calibrationBar.setProgress(Settings.getInstance().getCalibration());
         for (Settings.Theme theme : Settings.Theme.values())
             colorPicker.addPicker(theme.rulerColor, theme.elementsColor);
-        colorPicker.setSelected(Settings.getInstance().getTheme().ordinal());
         refresh();
         showSettings(false, false);
     }
 
     @OnClick(R.id.settings_view_btn_show)
     public void onBtnShowClick(View v) {
-        showSettings(!showed, true);
+        if (showed && Settings.getInstance().isChanged()) {
+            App.getBus().post(new OnSettingsChanged());
+        } else {
+            showSettings(!showed, true);
+        }
     }
 
-    private void showSettings(boolean show, boolean animate) {
+    public void showSettings(boolean show, boolean animate) {
         showed = show;
         if (animate) {
             ButterKnife.apply(showHideViews, showed ? SHOW_ANIMATION : HIDE_ANIMATION);
@@ -108,9 +114,13 @@ public class SettingsView extends FrameLayout {
             });
 
     public void refresh() {
-        String calibrationValue = String.valueOf(Settings.getInstance().getCalibration());
-        tvCalibration.setText(calibrationValue);
+        int calibration = Settings.getInstance().getCalibration();
+        if (calibrationBar.getCalibrationProgress() != calibration)
+            calibrationBar.setCalibrationProgress(calibration);
+        tvCalibration.setText(String.valueOf(calibration));
         Settings.Theme theme = Settings.getInstance().getTheme();
+        if (colorPicker.getSelectedIndex() != theme.ordinal())
+            colorPicker.setSelected(theme.ordinal());
         btnShow.setColorFilter(theme.elementsColor);
         calibrationBar.setColor(theme.elementsColor);
     }

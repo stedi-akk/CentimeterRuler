@@ -20,6 +20,8 @@ public class ColorPicker extends LinearLayout {
 
     private List<Picker> items = new ArrayList<>();
 
+    private int selectedIndex = -1;
+
     public static class OnSelected {
         public final int index;
 
@@ -67,10 +69,15 @@ public class ColorPicker extends LinearLayout {
     }
 
     public void setSelected(int index) {
+        selectedIndex = index;
         for (int i = 0; i < items.size(); i++) {
             Picker picker = items.get(i);
             refreshPicker(picker, i == index);
         }
+    }
+
+    public int getSelectedIndex() {
+        return selectedIndex;
     }
 
     private void refreshPicker(Picker picker, boolean selected) {

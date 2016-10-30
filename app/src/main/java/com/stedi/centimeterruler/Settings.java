@@ -32,7 +32,9 @@ public class Settings {
         }
     }
 
+    private int lastCalibration;
     private int calibration;
+    private Theme lastTheme;
     private Theme theme;
 
     public static Settings getInstance() {
@@ -43,8 +45,10 @@ public class Settings {
 
     private Settings() {
         SharedPreferences sp = App.getSharedPreferences();
-        calibration = sp.getInt(KEY_CALIBRATION, Constants.DEFAULT_CALIBRATION);
-        theme = Theme.find(sp.getString(KEY_THEME, Constants.DEFAULT_THEME.name()));
+        lastCalibration = sp.getInt(KEY_CALIBRATION, Constants.DEFAULT_CALIBRATION);
+        lastTheme = Theme.find(sp.getString(KEY_THEME, Constants.DEFAULT_THEME.name()));
+        calibration = lastCalibration;
+        theme = lastTheme;
     }
 
     public int getCalibration() {
@@ -67,8 +71,19 @@ public class Settings {
         this.theme = theme;
     }
 
-    public void save() {
+    public boolean isChanged() {
+        return lastCalibration != calibration || lastTheme != theme;
+    }
+
+    public void revert() {
+        calibration = lastCalibration;
+        theme = lastTheme;
+    }
+
+    public void commit() {
         App.saveSharedPreferences(editor -> {
+            lastCalibration = calibration;
+            lastTheme = theme;
             editor.putInt(KEY_CALIBRATION, calibration);
             editor.putString(KEY_THEME, theme.name());
         });

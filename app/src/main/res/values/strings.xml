@@ -1,3 +1,6 @@
 <resources>
-	<string name="app_name">Centimeter Ruler</string>
+    <string name="app_name">Centimeter Ruler</string>
+    <string name="apply_settings">Apply new settings ?</string>
+    <string name="dialog_ok">OK</string>
+    <string name="dialog_cancel">CANCEL</string>
 </resources>

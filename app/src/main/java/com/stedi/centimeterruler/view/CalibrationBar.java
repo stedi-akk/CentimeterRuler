@@ -48,6 +48,18 @@ public class CalibrationBar extends SeekBar implements SeekBar.OnSeekBarChangeLi
         thumbDrawable.getPaint().setColor(color);
     }
 
+    public void setCalibrationProgress(int progress) {
+        setOnSeekBarChangeListener(null);
+        setProgress(progress);
+        if (getWidth() > 0 && getHeight() > 0)
+            onSizeChanged(getWidth(), getHeight(), 0, 0);
+        setOnSeekBarChangeListener(this);
+    }
+
+    public int getCalibrationProgress() {
+        return getProgress();
+    }
+
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         if (cachedOnChange == null)
