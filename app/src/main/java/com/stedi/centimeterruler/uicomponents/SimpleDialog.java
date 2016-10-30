@@ -1,10 +1,10 @@
 package com.stedi.centimeterruler.uicomponents;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 
 import com.stedi.centimeterruler.App;
 import com.stedi.centimeterruler.Settings;

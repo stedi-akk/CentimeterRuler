@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Subscribe
     public void onSettingsChanged(SettingsView.OnSettingsChanged onSettingsChanged) {
-        SimpleDialog dlg = SimpleDialog.newInstance(getString(R.string.apply_settings), null,
+        SimpleDialog dlg = SimpleDialog.newInstance(null, getString(R.string.apply_settings),
                 getString(R.string.dialog_ok), getString(R.string.dialog_cancel), true);
         dlg.show(getSupportFragmentManager(), TAG_SETTINGS_CHANGED);
     }

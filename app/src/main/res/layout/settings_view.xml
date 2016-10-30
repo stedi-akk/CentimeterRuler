@@ -37,7 +37,9 @@
         android:layout_height="match_parent"
         android:layout_above="@+id/settings_view_btn_show"
         android:layout_alignParentRight="true"
-        android:layout_below="@+id/settings_view_tv_calibration" />
+        android:layout_below="@+id/settings_view_tv_calibration"
+        android:maxHeight="48dp"
+        android:minHeight="48dp" />
 
     <com.stedi.centimeterruler.view.ColorPicker
         android:id="@+id/settings_view_color_picker"
