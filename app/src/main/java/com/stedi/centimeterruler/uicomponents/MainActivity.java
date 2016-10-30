@@ -1,10 +1,12 @@
-package com.stedi.centimeterruler;
+package com.stedi.centimeterruler.uicomponents;
 
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 import com.squareup.otto.Subscribe;
+import com.stedi.centimeterruler.App;
+import com.stedi.centimeterruler.R;
+import com.stedi.centimeterruler.Settings;
 import com.stedi.centimeterruler.view.CalibrationBar;
 import com.stedi.centimeterruler.view.ColorPicker;
 import com.stedi.centimeterruler.view.RulerView;
@@ -30,7 +32,6 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         rulerView.calibrate(Settings.getInstance().getCalibration());
         rulerView.setRulerColor(Settings.getInstance().getTheme().rulerColor);
-        setNavBarColor(Settings.getInstance().getTheme().elementsColor);
     }
 
     @Override
@@ -56,7 +57,6 @@ public class MainActivity extends AppCompatActivity {
     public void onPickerSelected(ColorPicker.OnSelected onSelected) {
         Settings.getInstance().setTheme(Settings.Theme.values()[onSelected.index]);
         rulerView.setRulerColor(Settings.getInstance().getTheme().rulerColor);
-        setNavBarColor(Settings.getInstance().getTheme().elementsColor);
         settingsView.refresh();
     }
 
@@ -77,16 +77,10 @@ public class MainActivity extends AppCompatActivity {
                 settingsView.refresh();
                 rulerView.calibrate(Settings.getInstance().getCalibration());
                 rulerView.setRulerColor(Settings.getInstance().getTheme().rulerColor);
-                setNavBarColor(Settings.getInstance().getTheme().elementsColor);
             }
             settingsView.showSettings(false, true);
         } else if (onResult.tag.equals(TAG_CALIBRATION_INFO)) {
 
         }
-    }
-
-    private void setNavBarColor(int color) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-            getWindow().setNavigationBarColor(color);
     }
 }

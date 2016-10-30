@@ -5,4 +5,5 @@ public final class Constants {
     public static final int MAX_CALIBRATION = 120;
     public static final int DEFAULT_CALIBRATION = MAX_CALIBRATION / 2;
     public static final Settings.Theme DEFAULT_THEME = Settings.Theme.GRAY;
+    public static final int SHOW_HIDE_ANIM_DURATION = 200;
 }

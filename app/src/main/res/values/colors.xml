@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="window_background">#ffffff</color>
+    <color name="yellow">#f6ff9e</color>
+    <color name="yellow_darker">#eded55</color>
+    <color name="gray">#e3e3e3</color>
+    <color name="gray_darker">#c6c6c6</color>
+    <color name="green">#afffad</color>
+    <color name="green_darker">#59e43d</color>
+    <color name="blue">#b7d8ff</color>
+    <color name="blue_darker">#6baeff</color>
 </resources>

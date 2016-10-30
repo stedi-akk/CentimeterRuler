@@ -44,4 +44,8 @@ public class App extends Application {
     public static float mm2px(int mm) {
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, mm, instance.getResources().getDisplayMetrics());
     }
+
+    public static int color(int resId) {
+        return instance.getResources().getColor(resId);
+    }
 }

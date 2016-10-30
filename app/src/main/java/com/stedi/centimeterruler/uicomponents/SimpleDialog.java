@@ -1,10 +1,13 @@
-package com.stedi.centimeterruler;
+package com.stedi.centimeterruler.uicomponents;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
+
+import com.stedi.centimeterruler.App;
+import com.stedi.centimeterruler.Settings;
 
 public class SimpleDialog extends DialogFragment {
     private static final String KEY_TITLE = "KEY_TITLE";
@@ -38,7 +41,7 @@ public class SimpleDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         if (getArguments() == null)
             throw new IllegalArgumentException("arguments not found");
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), Settings.getInstance().getTheme().dialogThemeResId);
         String title = getArguments().getString(KEY_TITLE, null);
         String message = getArguments().getString(KEY_MESSAGE, null);
         String okText = getArguments().getString(KEY_OK_TEXT, null);

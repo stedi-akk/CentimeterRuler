@@ -4,4 +4,20 @@
         <item name="android:windowBackground">@color/window_background</item>
         <item name="android:windowFullscreen">true</item>
     </style>
+
+    <style name="DialogGrayTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/gray_darker</item>
+    </style>
+
+    <style name="DialogBlueTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/blue_darker</item>
+    </style>
+
+    <style name="DialogGreenTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/green_darker</item>
+    </style>
+
+    <style name="DialogYellowTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/yellow_darker</item>
+    </style>
 </resources>

@@ -98,20 +98,22 @@ public class SettingsView extends FrameLayout {
     }
 
     static final ButterKnife.Action<View> SHOW_ANIMATION = (view, index) ->
-            view.animate().alpha(1f).setDuration(500).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationStart(Animator animation) {
-                    view.setVisibility(View.VISIBLE);
-                }
-            });
+            view.animate().alpha(1f).setDuration(Constants.SHOW_HIDE_ANIM_DURATION)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationStart(Animator animation) {
+                            view.setVisibility(View.VISIBLE);
+                        }
+                    });
 
     static final ButterKnife.Action<View> HIDE_ANIMATION = (view, index) ->
-            view.animate().alpha(0f).setDuration(500).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    view.setVisibility(View.GONE);
-                }
-            });
+            view.animate().alpha(0f).setDuration(Constants.SHOW_HIDE_ANIM_DURATION)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            view.setVisibility(View.GONE);
+                        }
+                    });
 
     public void refresh() {
         int calibration = Settings.getInstance().getCalibration();

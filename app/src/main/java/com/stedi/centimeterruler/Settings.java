@@ -1,7 +1,6 @@
 package com.stedi.centimeterruler;
 
 import android.content.SharedPreferences;
-import android.graphics.Color;
 
 public class Settings {
     private static Settings instance;
@@ -10,17 +9,19 @@ public class Settings {
     private static final String KEY_THEME = "ruler_theme";
 
     public enum Theme {
-        BLUE("#9ecaff", "#6baeff"),
-        GREEN("#aeff9e", "#59e43d"),
-        YELLOW("#f6ff9e", "#e1ed68"),
-        GRAY("#e3e3e3", "#c6c6c6");
+        BLUE(R.color.blue, R.color.blue_darker, R.style.DialogBlueTheme),
+        GREEN(R.color.green, R.color.green_darker, R.style.DialogGreenTheme),
+        YELLOW(R.color.yellow, R.color.yellow_darker, R.style.DialogYellowTheme),
+        GRAY(R.color.gray, R.color.gray_darker, R.style.DialogGrayTheme);
 
         public final int rulerColor;
         public final int elementsColor;
+        public final int dialogThemeResId;
 
-        Theme(String rulerColor, String elementsColor) {
-            this.rulerColor = Color.parseColor(rulerColor);
-            this.elementsColor = Color.parseColor(elementsColor);
+        Theme(int rulerColorResId, int elementsColorResId, int dialogThemeResId) {
+            this.rulerColor = App.color(rulerColorResId);
+            this.elementsColor = App.color(elementsColorResId);
+            this.dialogThemeResId = dialogThemeResId;
         }
 
         public static Theme find(String name) {
