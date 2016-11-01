@@ -4,8 +4,6 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -14,9 +12,6 @@ import com.stedi.centimeterruler.App;
 import com.stedi.centimeterruler.Constants;
 
 public class RulerView extends View implements View.OnTouchListener {
-    private final String KEY_STATE = "KEY_STATE";
-    private final String KEY_DRAW_X = "KEY_DRAW_X";
-
     private final float MM = App.mm2px(1);
     private final float SM = MM * 10;
     private final float RULER_WIDTH = SM * 2 + MM * 2;
@@ -31,8 +26,6 @@ public class RulerView extends View implements View.OnTouchListener {
     private float drawX;
 
     private float calibration;
-
-    private boolean fromRestoreInstanceState;
 
     public RulerView(Context context) {
         this(context, null);
@@ -67,10 +60,12 @@ public class RulerView extends View implements View.OnTouchListener {
         invalidate();
     }
 
-    @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        if (!fromRestoreInstanceState)
-            drawX = w / 2;
+    public void setDrawPosition(float x) {
+        drawX = x;
+    }
+
+    public float getDrawPosition() {
+        return drawX;
     }
 
     @Override
@@ -137,24 +132,5 @@ public class RulerView extends View implements View.OnTouchListener {
             smY -= (SM + calibration * 10);
             i++;
         }
-    }
-
-    @Override
-    public void onRestoreInstanceState(Parcelable state) {
-        if (state instanceof Bundle) {
-            fromRestoreInstanceState = true;
-            Bundle bundle = (Bundle) state;
-            drawX = bundle.getFloat(KEY_DRAW_X);
-            state = bundle.getParcelable(KEY_STATE);
-        }
-        super.onRestoreInstanceState(state);
-    }
-
-    @Override
-    public Parcelable onSaveInstanceState() {
-        Bundle bundle = new Bundle();
-        bundle.putParcelable(KEY_STATE, super.onSaveInstanceState());
-        bundle.putFloat(KEY_DRAW_X, drawX);
-        return bundle;
     }
 }

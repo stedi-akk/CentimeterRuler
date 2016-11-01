@@ -19,6 +19,7 @@ public class MainActivity extends AppCompatActivity {
     private final String TAG_SETTINGS_CHANGED = "TAG_SETTINGS_CHANGED";
     private final String TAG_CALIBRATION_INFO = "TAG_CALIBRATION_INFO";
     private final String KEY_CALIBRATION_INFO_SHOWED = "KEY_CALIBRATION_INFO_SHOWED";
+    private final String KEY_RULER_POSITION = "KEY_RULER_POSITION";
 
     @BindView(R.id.settings_view)
     SettingsView settingsView;
@@ -31,6 +32,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
         ButterKnife.bind(this);
+
+        float rulerPosition = App.getSharedPreferences().getFloat(KEY_RULER_POSITION, getResources().getDisplayMetrics().widthPixels / 2f);
+        rulerView.setDrawPosition(rulerPosition);
         rulerView.calibrate(Settings.getInstance().getCalibration());
         rulerView.setRulerColor(Settings.getInstance().getTheme().rulerColor);
 
@@ -52,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         App.getBus().unregister(this);
+        App.saveSharedPreferences(editor -> editor.putFloat(KEY_RULER_POSITION, rulerView.getDrawPosition()));
     }
 
     @Subscribe
