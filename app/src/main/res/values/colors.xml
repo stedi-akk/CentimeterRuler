@@ -2,7 +2,7 @@
 <resources>
     <color name="window_background">#ffffff</color>
     <color name="yellow">#f6ff9e</color>
-    <color name="yellow_darker">#eded55</color>
+    <color name="yellow_darker">#eae35b</color>
     <color name="gray">#e3e3e3</color>
     <color name="gray_darker">#c6c6c6</color>
     <color name="green">#afffad</color>

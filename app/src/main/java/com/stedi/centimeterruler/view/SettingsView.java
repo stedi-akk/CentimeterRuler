@@ -2,6 +2,8 @@ package com.stedi.centimeterruler.view;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -85,8 +87,21 @@ public class SettingsView extends FrameLayout {
         }
     }
 
+    public void refresh() {
+        int calibration = Settings.getInstance().getCalibration();
+        if (calibrationBar.getCalibrationProgress() != calibration)
+            calibrationBar.setCalibrationProgress(calibration);
+        tvCalibration.setText(String.valueOf(calibration));
+        Settings.Theme theme = Settings.getInstance().getTheme();
+        if (colorPicker.getSelectedIndex() != theme.ordinal())
+            colorPicker.setSelected(theme.ordinal());
+        calibrationBar.setColor(theme.elementsColor);
+        changeButtonColor(theme.elementsColor, false);
+    }
+
     public void showSettings(boolean show, boolean animate) {
         showed = show;
+        changeButtonColor(showed ? Settings.getInstance().getTheme().elementsColor : Constants.BTN_SETTINGS_COLOR, animate);
         if (animate) {
             ButterKnife.apply(showHideViews, showed ? SHOW_ANIMATION : HIDE_ANIMATION);
         } else {
@@ -98,33 +113,32 @@ public class SettingsView extends FrameLayout {
     }
 
     static final ButterKnife.Action<View> SHOW_ANIMATION = (view, index) ->
-            view.animate().alpha(1f).setDuration(Constants.SHOW_HIDE_ANIM_DURATION)
-                    .setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationStart(Animator animation) {
-                            view.setVisibility(View.VISIBLE);
-                        }
-                    });
+            view.animate().alpha(1f).setDuration(Constants.ANIM_DURATION).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    view.setVisibility(View.VISIBLE);
+                }
+            });
 
     static final ButterKnife.Action<View> HIDE_ANIMATION = (view, index) ->
-            view.animate().alpha(0f).setDuration(Constants.SHOW_HIDE_ANIM_DURATION)
-                    .setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            view.setVisibility(View.GONE);
-                        }
-                    });
+            view.animate().alpha(0f).setDuration(Constants.ANIM_DURATION).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    view.setVisibility(View.GONE);
+                }
+            });
 
-    public void refresh() {
-        int calibration = Settings.getInstance().getCalibration();
-        if (calibrationBar.getCalibrationProgress() != calibration)
-            calibrationBar.setCalibrationProgress(calibration);
-        tvCalibration.setText(String.valueOf(calibration));
-        Settings.Theme theme = Settings.getInstance().getTheme();
-        if (colorPicker.getSelectedIndex() != theme.ordinal())
-            colorPicker.setSelected(theme.ordinal());
-        btnShow.setColorFilter(theme.elementsColor);
-        calibrationBar.setColor(theme.elementsColor);
+    private void changeButtonColor(int colorTo, boolean animate) {
+        if (animate && btnShow.getTag() != null) {
+            int colorFrom = (int) btnShow.getTag();
+            ValueAnimator anim = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
+            anim.setDuration(Constants.ANIM_DURATION);
+            anim.addUpdateListener(animator -> btnShow.setColorFilter((int) animator.getAnimatedValue()));
+            anim.start();
+        } else {
+            btnShow.setColorFilter(colorTo);
+        }
+        btnShow.setTag(colorTo);
     }
 
     @Override

@@ -5,5 +5,6 @@ public final class Constants {
     public static final int MAX_CALIBRATION = 90;
     public static final int DEFAULT_CALIBRATION = MAX_CALIBRATION / 2;
     public static final Settings.Theme DEFAULT_THEME = Settings.Theme.GRAY;
-    public static final int SHOW_HIDE_ANIM_DURATION = 200;
+    public static final int ANIM_DURATION = 200;
+    public static final int BTN_SETTINGS_COLOR = App.color(R.color.gray);
 }
