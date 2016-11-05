@@ -101,7 +101,7 @@ public class SettingsView extends FrameLayout {
 
     public void showSettings(boolean show, boolean animate) {
         showed = show;
-        changeButtonColor(showed ? Settings.getInstance().getTheme().elementsColor : Constants.BTN_SETTINGS_COLOR, animate);
+        changeButtonColor(showed ? Settings.getInstance().getTheme().elementsColor : Settings.getInstance().getTheme().rulerColor, animate);
         if (animate) {
             ButterKnife.apply(showHideViews, showed ? SHOW_ANIMATION : HIDE_ANIMATION);
         } else {
