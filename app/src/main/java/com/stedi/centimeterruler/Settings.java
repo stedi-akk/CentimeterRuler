@@ -89,19 +89,4 @@ public class Settings {
             editor.putString(KEY_THEME, theme.name());
         });
     }
-
-    public boolean adaptFromOldVersion() {
-        if (!App.getSharedPreferences().contains(KEY_CALIBRATION))
-            return false;
-        int oldMaxCalib = 60;
-        float difCalib = Constants.MAX_CALIBRATION / oldMaxCalib;
-        lastCalibration = (int) (calibration * difCalib);
-        if (lastCalibration < 0)
-            lastCalibration = 0;
-        if (lastCalibration > Constants.MAX_CALIBRATION)
-            lastCalibration = Constants.MAX_CALIBRATION;
-        calibration = lastCalibration;
-        App.saveSharedPreferences(editor -> editor.putInt(KEY_CALIBRATION, calibration));
-        return true;
-    }
 }

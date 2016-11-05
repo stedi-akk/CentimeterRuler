@@ -33,21 +33,16 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.main_activity);
         ButterKnife.bind(this);
 
-        boolean showCalibInfo = !App.getSharedPreferences().contains(KEY_CALIBRATION_INFO_SHOWED);
-        if (showCalibInfo && Settings.getInstance().adaptFromOldVersion())
-            showCalibInfo = false;
-
         float rulerPosition = App.getSharedPreferences().getFloat(KEY_RULER_POSITION, getResources().getDisplayMetrics().widthPixels / 2f);
         rulerView.setDrawPosition(rulerPosition);
         rulerView.calibrate(Settings.getInstance().getCalibration());
         rulerView.setRulerColor(Settings.getInstance().getTheme().rulerColor);
 
-        if (showCalibInfo && getSupportFragmentManager().findFragmentByTag(TAG_CALIBRATION_INFO) == null) {
+        if (!App.getSharedPreferences().contains(KEY_CALIBRATION_INFO_SHOWED)
+                && getSupportFragmentManager().findFragmentByTag(TAG_CALIBRATION_INFO) == null) {
             SimpleDialog dlg = SimpleDialog.newInstance(getString(R.string.hello), getString(R.string.calibration_info),
                     getString(R.string.dialog_ok), null, false);
             dlg.show(getSupportFragmentManager(), TAG_CALIBRATION_INFO);
-        } else if (!showCalibInfo) {
-            App.saveSharedPreferences(editor -> editor.putBoolean(KEY_CALIBRATION_INFO_SHOWED, true));
         }
     }
 
